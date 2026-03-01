@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kangaroo Insights</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 1rem 0;
+        }
+        main {
+            padding: 20px;
+        }
+        section {
+            margin-bottom: 20px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        .news, .weather {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .news-item, .weather-item {
+            flex: 1 1 calc(33.333% - 20px);
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fafafa;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .news-item, .weather-item {
+                flex: 1 1 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Kangaroo Insights</h1>
+        <p>Your one-stop hub for all things kangaroo!</p>
+    </header>
+    <main>
+        <section id="news-section">
+            <h2>Latest Kangaroo News</h2>
+            <div class="news" id="news-container">
+                <p>Loading news...</p>
+            </div>
+        </section>
+        <section id="weather-section">
+            <h2>Weather in Australia</h2>
+            <div class="weather" id="weather-container">
+                <p>Loading weather data...</p>
+            </div>
+        </section>
+    </main>
+    <footer>
+        Built by Samantha for Michael Nguyen
+    </footer>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchNews();
+            fetchWeather();
+        });
+
+        async function fetchNews() {
+            const url = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://newsapi.org/v2/everything?q=kangaroo&apiKey=YOUR_NEWS_API_KEY');
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const articles = JSON.parse(data.contents).articles;
+                const newsContainer = document.getElementById('news-container');
+                newsContainer.innerHTML = '';
+                articles.forEach(article => {
+                    const newsItem = document.createElement('div');
+                    newsItem.className = 'news-item';
+                    newsItem.innerHTML = `
+                        <h3>${article.title}</h3>
+                        <p>${article.description}</p>
+                        <a href="${article.url}" target="_blank">Read more</a>
+                    `;
+                    newsContainer.appendChild(newsItem);
+                });
+            } catch (error) {
+                document.getElementById('news-container').innerHTML = '<p>Failed to load news. Please try again later.</p>';
+            }
+        }
+
+        async function fetchWeather() {
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=-25.2744&longitude=133.7751&current_weather=true';
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+                const weatherContainer = document.getElementById('weather-container');
+                weatherContainer.innerHTML = `
+                    <div class="weather-item">
+                        <h3>Current Weather</h3>
+                        <p>Temperature: ${data.current_weather.temperature}°C</p>
+                        <p>Wind Speed: ${data.current_weather.windspeed} km/h</p>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('weather-container').innerHTML = '<p>Failed to load weather data. Please try again later.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
