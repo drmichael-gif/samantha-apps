@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dubai News App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+        }
+        .content {
+            padding: 20px;
+        }
+        .news-section, .weather-section, .map-section, .finance-section {
+            margin-bottom: 20px;
+        }
+        h2 {
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+        .news-item {
+            margin-bottom: 10px;
+        }
+        .news-item h3 {
+            margin: 0;
+            font-size: 1.2em;
+        }
+        .news-item p {
+            margin: 5px 0;
+        }
+        .map {
+            width: 100%;
+            height: 300px;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dubai News App</h1>
+    </header>
+    <div class="content">
+        <div class="news-section">
+            <h2>Latest News</h2>
+            <div id="news"></div>
+        </div>
+        <div class="weather-section">
+            <h2>Current Weather</h2>
+            <div id="weather"></div>
+        </div>
+        <div class="finance-section">
+            <h2>Finance</h2>
+            <div id="finance"></div>
+        </div>
+        <div class="map-section">
+            <h2>Map of Dubai</h2>
+            <div id="map" class="map"></div>
+        </div>
+    </div>
+    <footer>
+        Built by Samantha for Michael Nguyen
+    </footer>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Fetch News
+        async function fetchNews() {
+            try {
+                const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://newsapi.org/v2/everything?q=Dubai&apiKey=YOUR_NEWSAPI_KEY'));
+                const data = await response.json();
+                const articles = JSON.parse(data.contents).articles;
+                const newsContainer = document.getElementById('news');
+                articles.slice(0, 5).forEach(article => {
+                    const newsItem = document.createElement('div');
+                    newsItem.classList.add('news-item');
+                    newsItem.innerHTML = `<h3>${article.title}</h3><p>${article.description}</p><a href="${article.url}" target="_blank">Read more</a>`;
+                    newsContainer.appendChild(newsItem);
+                });
+            } catch (error) {
+                document.getElementById('news').innerText = 'Failed to load news. Please try again later.';
+            }
+        }
+
+        // Fetch Weather
+        async function fetchWeather() {
+            try {
+                const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.276987&longitude=55.296249&current_weather=true');
+                const data = await response.json();
+                const weatherContainer = document.getElementById('weather');
+                weatherContainer.innerHTML = `<p>Temperature: ${data.current_weather.temperature}°C</p><p>Condition: ${data.current_weather.weathercode}</p>`;
+            } catch (error) {
+                document.getElementById('weather').innerText = 'Failed to load weather. Please try again later.';
+            }
+        }
+
+        // Fetch Finance Data
+        async function fetchFinance() {
+            try {
+                const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://finance.yahoo.com/quote/DFM/index'));
+                const data = await response.json();
+                const financeContainer = document.getElementById('finance');
+                financeContainer.innerHTML = `<p>Finance data for Dubai</p>`;
+            } catch (error) {
+                document.getElementById('finance').innerText = 'Failed to load finance data. Please try again later.';
+            }
+        }
+
+        // Initialize Map
+        function initMap() {
+            const map = L.map('map').setView([25.276987, 55.296249], 10);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+        }
+
+        // Initialize App
+        function initApp() {
+            fetchNews();
+            fetchWeather();
+            fetchFinance();
+            initMap();
+        }
+
+        // Load App
+        window.onload = initApp;
+    </script>
+</body>
+</html>
