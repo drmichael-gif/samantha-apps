@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dubai News App</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #007bff;
+            color: white;
+            padding: 10px;
+            text-align: center;
+        }
+        #content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            padding: 20px;
+        }
+        .section {
+            flex: 1 1 300px;
+            margin: 10px;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            font-size: 1.5em;
+            margin-top: 0;
+        }
+        #news, #weather, #finance {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Dubai News App</h1>
+    </header>
+    <div id="content">
+        <div class="section" id="news">
+            <h2>Latest News</h2>
+            <div id="news-content">Loading news...</div>
+        </div>
+        <div class="section" id="weather">
+            <h2>Weather in Dubai</h2>
+            <div id="weather-content">Loading weather...</div>
+        </div>
+        <div class="section" id="finance">
+            <h2>Finance</h2>
+            <div id="finance-content">Loading finance data...</div>
+        </div>
+    </div>
+    <footer>
+        Built by Samantha for Michael Nguyen
+    </footer>
+    <script>
+        async function fetchNews() {
+            try {
+                const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://newsapi.org/v2/top-headlines?country=ae&apiKey=YOUR_API_KEY'));
+                const data = await response.json();
+                const articles = JSON.parse(data.contents).articles;
+                const newsContent = articles.map(article => `
+                    <div>
+                        <h3>${article.title}</h3>
+                        <p>${article.description}</p>
+                        <a href="${article.url}" target="_blank">Read more</a>
+                    </div>
+                `).join('');
+                document.getElementById('news-content').innerHTML = newsContent;
+            } catch (error) {
+                document.getElementById('news-content').innerHTML = 'Failed to load news.';
+            }
+        }
+
+        async function fetchWeather() {
+            try {
+                const response = await fetch('https://api.open-meteo.com/v1/forecast?latitude=25.276987&longitude=55.296249&current_weather=true');
+                const data = await response.json();
+                const weatherContent = `
+                    <p>Temperature: ${data.current_weather.temperature}°C</p>
+                    <p>Wind Speed: ${data.current_weather.windspeed} km/h</p>
+                `;
+                document.getElementById('weather-content').innerHTML = weatherContent;
+            } catch (error) {
+                document.getElementById('weather-content').innerHTML = 'Failed to load weather data.';
+            }
+        }
+
+        async function fetchFinance() {
+            try {
+                const response = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://query1.finance.yahoo.com/v7/finance/quote?symbols=DX-Y.NYB'));
+                const data = await response.json();
+                const financeData = JSON.parse(data.contents).quoteResponse.result[0];
+                const financeContent = `
+                    <p>Exchange Rate (USD/AED): ${financeData.regularMarketPrice}</p>
+                `;
+                document.getElementById('finance-content').innerHTML = financeContent;
+            } catch (error) {
+                document.getElementById('finance-content').innerHTML = 'Failed to load finance data.';
+            }
+        }
+
+        fetchNews();
+        fetchWeather();
+        fetchFinance();
+    </script>
+</body>
+</html>
